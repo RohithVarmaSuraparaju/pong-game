@@ -1,5 +1,5 @@
 body {
-    background: linear-gradient(135deg, #222, #444 80%);
+    background: #222;
     color: #fff;
     font-family: Arial, sans-serif;
     text-align: center;
@@ -25,7 +25,7 @@ canvas {
     box-shadow: 0 0 20px #000;
 }
 
-#overlay {
+#game-over {
     position: absolute;
     top: 0;
     left: 0;
@@ -40,17 +40,16 @@ canvas {
     border-radius: 10px;
 }
 
-#message {
-    font-size: 2.2rem;
-    margin-bottom: 28px;
-    color: #fffdc8;
-    text-shadow: 0 2px 8px #333;
+#game-over-message {
+    font-size: 2rem;
+    margin-bottom: 25px;
+    color: #ffe;
 }
 
 #restart-btn {
-    font-size: 1.2rem;
-    padding: 12px 26px;
-    border-radius: 6px;
+    font-size: 1.1rem;
+    padding: 10px 24px;
+    border-radius: 5px;
     border: none;
     background: #0bf;
     color: #fff;
