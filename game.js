@@ -7,10 +7,17 @@ const HEIGHT = canvas.height;
 const PADDLE_WIDTH = 12;
 const PADDLE_HEIGHT = 100;
 const PADDLE_MARGIN = 18;
-const PADDLE_SPEED = 7;
+
+// Increase human paddle speed for fairness
+const HUMAN_PADDLE_SPEED = 9;
+// Slow down AI paddle speed so human has a chance
+const AI_PADDLE_SPEED = 6;
 
 const BALL_SIZE = 16;
-const BALL_SPEED = 5;
+// Start with higher speed!
+const BALL_START_SPEED = 8;
+// Ball will increase speed per paddle hit
+const BALL_SPEED_INCREMENT = 0.6;
 
 const WIN_SCORE = 3;
 
@@ -18,8 +25,10 @@ let leftPaddleY = HEIGHT / 2 - PADDLE_HEIGHT / 2;
 let rightPaddleY = HEIGHT / 2 - PADDLE_HEIGHT / 2;
 let ballX = WIDTH / 2 - BALL_SIZE / 2;
 let ballY = HEIGHT / 2 - BALL_SIZE / 2;
-let ballSpeedX = BALL_SPEED * (Math.random() < 0.5 ? 1 : -1);
-let ballSpeedY = BALL_SPEED * (Math.random() * 2 - 1);
+let ballSpeedX = BALL_START_SPEED * (Math.random() < 0.5 ? 1 : -1);
+let ballSpeedY = BALL_START_SPEED * (Math.random() * 2 - 1);
+let ballCurrentSpeed = BALL_START_SPEED;
+
 let leftScore = 0;
 let rightScore = 0;
 let winner = "";
@@ -70,8 +79,9 @@ function drawText(text, x, y, color, font = "40px Arial", align = "left") {
 function resetBall(direction) {
     ballX = WIDTH / 2 - BALL_SIZE / 2;
     ballY = HEIGHT / 2 - BALL_SIZE / 2;
-    ballSpeedX = BALL_SPEED * direction;
-    ballSpeedY = BALL_SPEED * (Math.random() * 2 - 1);
+    ballCurrentSpeed = BALL_START_SPEED;
+    ballSpeedX = ballCurrentSpeed * direction;
+    ballSpeedY = ballCurrentSpeed * (Math.random() * 2 - 1);
 }
 
 function resetGame() {
@@ -100,26 +110,33 @@ function update() {
         ballSpeedY *= -1;
     }
 
-    // Ball collision with left paddle
+    // Ball collision with left paddle (human)
     if (
         ballX <= PADDLE_MARGIN + PADDLE_WIDTH &&
         ballY + BALL_SIZE > leftPaddleY &&
         ballY < leftPaddleY + PADDLE_HEIGHT
     ) {
         ballX = PADDLE_MARGIN + PADDLE_WIDTH;
-        ballSpeedX *= -1;
+        ballCurrentSpeed += BALL_SPEED_INCREMENT; // Speed up ball!
+        ballSpeedX = ballCurrentSpeed;
         ballSpeedY += (Math.random() - 0.5) * 2;
+        // ballSpeedY = clamp(ballSpeedY, -ballCurrentSpeed, ballCurrentSpeed);
+        if (ballSpeedY > ballCurrentSpeed) ballSpeedY = ballCurrentSpeed;
+        if (ballSpeedY < -ballCurrentSpeed) ballSpeedY = -ballCurrentSpeed;
     }
 
-    // Ball collision with right paddle
+    // Ball collision with right paddle (AI)
     if (
         ballX + BALL_SIZE >= WIDTH - PADDLE_MARGIN - PADDLE_WIDTH &&
         ballY + BALL_SIZE > rightPaddleY &&
         ballY < rightPaddleY + PADDLE_HEIGHT
     ) {
         ballX = WIDTH - PADDLE_MARGIN - PADDLE_WIDTH - BALL_SIZE;
-        ballSpeedX *= -1;
+        ballCurrentSpeed += BALL_SPEED_INCREMENT; // Speed up ball!
+        ballSpeedX = -ballCurrentSpeed;
         ballSpeedY += (Math.random() - 0.5) * 2;
+        if (ballSpeedY > ballCurrentSpeed) ballSpeedY = ballCurrentSpeed;
+        if (ballSpeedY < -ballCurrentSpeed) ballSpeedY = -ballCurrentSpeed;
     }
 
     // Score update
@@ -142,38 +159,38 @@ function update() {
         }
     }
 
-    // Simple AI for right paddle
-    let targetY = ballY + BALL_SIZE / 2 - PADDLE_HEIGHT / 2;
-    if (rightPaddleY + PADDLE_HEIGHT / 2 < targetY) {
-        rightPaddleY += PADDLE_SPEED;
-    } else if (rightPaddleY + PADDLE_HEIGHT / 2 > targetY) {
-        rightPaddleY -= PADDLE_SPEED;
+    // --- Human paddle (left) is controlled by mouse/touch ---
+
+    // --- AI paddle (right) ---
+    // Make AI less perfect: only move toward ball if ball is moving toward it
+    if (ballSpeedX > 0 && Math.abs(ballY + BALL_SIZE / 2 - (rightPaddleY + PADDLE_HEIGHT / 2)) > 15) {
+        // Occasional "error" for AI: don't follow ball perfectly
+        let targetY = ballY + BALL_SIZE / 2 - PADDLE_HEIGHT / 2;
+        if (rightPaddleY + PADDLE_HEIGHT / 2 < targetY - 10) {
+            rightPaddleY += AI_PADDLE_SPEED;
+        } else if (rightPaddleY + PADDLE_HEIGHT / 2 > targetY + 10) {
+            rightPaddleY -= AI_PADDLE_SPEED;
+        }
     }
     if (rightPaddleY < 0) rightPaddleY = 0;
     if (rightPaddleY > HEIGHT - PADDLE_HEIGHT) rightPaddleY = HEIGHT - PADDLE_HEIGHT;
 }
 
 function draw() {
-    // Clear canvas
     ctx.clearRect(0, 0, WIDTH, HEIGHT);
 
-    // Draw paddles
     drawRect(PADDLE_MARGIN, leftPaddleY, PADDLE_WIDTH, PADDLE_HEIGHT, "#0bf");
     drawRect(WIDTH - PADDLE_MARGIN - PADDLE_WIDTH, rightPaddleY, PADDLE_WIDTH, PADDLE_HEIGHT, "#fb0");
-
-    // Draw ball
     drawRect(ballX, ballY, BALL_SIZE, BALL_SIZE, "#fff");
 
-    // Draw center line
+    // Center line
     for (let i = 0; i < HEIGHT; i += 30) {
         drawRect(WIDTH / 2 - 2, i, 4, 20, "#666");
     }
 
-    // Draw scores
     drawText(leftScore, WIDTH / 2 - 80, 70, "#0bf", "40px Arial", "center");
     drawText(rightScore, WIDTH / 2 + 40, 70, "#fb0", "40px Arial", "center");
 
-    // Draw winner message if game over
     if (gameOver && winner) {
         ctx.globalAlpha = 0.8;
         drawRect(0, HEIGHT / 2 - 70, WIDTH, 140, "#222");
@@ -205,6 +222,5 @@ function gameLoop() {
     }
 }
 
-// --- INIT ---
 resetGame();
 gameLoop();
