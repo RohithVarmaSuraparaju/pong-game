@@ -8,7 +8,6 @@ body {
 }
 
 #game-container {
-    position: relative;
     margin: 40px auto;
     width: 800px;
     background: #111;
@@ -23,41 +22,4 @@ canvas {
     margin: 0 auto;
     border-radius: 10px;
     box-shadow: 0 0 20px #000;
-}
-
-#game-over {
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 800px;
-    height: 500px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    flex-direction: column;
-    background: rgba(20, 20, 20, 0.85);
-    z-index: 2;
-    border-radius: 10px;
-}
-
-#game-over-message {
-    font-size: 2rem;
-    margin-bottom: 25px;
-    color: #ffe;
-}
-
-#restart-btn {
-    font-size: 1.1rem;
-    padding: 10px 24px;
-    border-radius: 5px;
-    border: none;
-    background: #0bf;
-    color: #fff;
-    cursor: pointer;
-    box-shadow: 0 2px 4px #222;
-    transition: background 0.2s;
-}
-#restart-btn:hover {
-    background: #fb0;
-    color: #222;
 }
