@@ -3,6 +3,9 @@
 A simple Pong game built with HTML, CSS, and JavaScript.  
 Move your mouse to control the left paddle and try to keep the ball in play. The right paddle is controlled by a basic AI.
 
+Play it live: [pong-game-ruby.vercel.app](https://pong-game-ruby.vercel.app/)
+
+
 ## Features
 
 - Mouse controls for the left paddle
