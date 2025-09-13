@@ -66,7 +66,10 @@ canvas.addEventListener("touchmove", function(e) {
     }
 }, {passive: false});
 
-restartBtn.addEventListener("click", resetGame);
+restartBtn.addEventListener("click", () => {
+    resetGame();
+    gameLoop();
+});
 
 function drawRect(x, y, w, h, color) {
     ctx.fillStyle = color;
@@ -173,7 +176,9 @@ function showGameOver(msg) {
 function gameLoop() {
     update();
     draw();
-    requestAnimationFrame(gameLoop);
+    if (!isGameOver) {
+        requestAnimationFrame(gameLoop);
+    }
 }
 
 // --- INIT ---
