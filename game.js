@@ -15,35 +15,14 @@ const BALL_SIZE = 16;
 const BALL_SPEED = 5;
 
 // Game state
-let leftPaddleY, rightPaddleY;
-let ballX, ballY, ballSpeedX, ballSpeedY;
-let leftScore, rightScore;
-let isGameOver = false;
-
-const WIN_SCORE = 7;
-
-// DOM elements
-const gameOverDiv = document.getElementById('game-over');
-const gameOverMsg = document.getElementById('game-over-message');
-const restartBtn = document.getElementById('restart-btn');
-
-// Reset everything
-function resetGame() {
-    leftScore = 0;
-    rightScore = 0;
-    leftPaddleY = HEIGHT / 2 - PADDLE_HEIGHT / 2;
-    rightPaddleY = HEIGHT / 2 - PADDLE_HEIGHT / 2;
-    isGameOver = false;
-    gameOverDiv.hidden = true;
-    resetBall(Math.random() < 0.5 ? 1 : -1);
-}
-
-function resetBall(direction = 1) {
-    ballX = WIDTH / 2 - BALL_SIZE / 2;
-    ballY = HEIGHT / 2 - BALL_SIZE / 2;
-    ballSpeedX = BALL_SPEED * direction;
-    ballSpeedY = BALL_SPEED * (Math.random() * 2 - 1);
-}
+let leftPaddleY = HEIGHT / 2 - PADDLE_HEIGHT / 2;
+let rightPaddleY = HEIGHT / 2 - PADDLE_HEIGHT / 2;
+let ballX = WIDTH / 2 - BALL_SIZE / 2;
+let ballY = HEIGHT / 2 - BALL_SIZE / 2;
+let ballSpeedX = BALL_SPEED * (Math.random() < 0.5 ? 1 : -1);
+let ballSpeedY = BALL_SPEED * (Math.random() * 2 - 1);
+let leftScore = 0;
+let rightScore = 0;
 
 // Mouse controls for left paddle
 canvas.addEventListener("mousemove", function(e) {
@@ -65,11 +44,6 @@ canvas.addEventListener("touchmove", function(e) {
         if (leftPaddleY > HEIGHT - PADDLE_HEIGHT) leftPaddleY = HEIGHT - PADDLE_HEIGHT;
     }
 }, {passive: false});
-
-restartBtn.addEventListener("click", () => {
-    resetGame();
-    gameLoop();
-});
 
 function drawRect(x, y, w, h, color) {
     ctx.fillStyle = color;
@@ -99,8 +73,6 @@ function draw() {
 }
 
 function update() {
-    if (isGameOver) return;
-
     // Ball movement
     ballX += ballSpeedX;
     ballY += ballSpeedY;
@@ -140,21 +112,11 @@ function update() {
     // Score update
     if (ballX < 0) {
         rightScore++;
-        if (rightScore >= WIN_SCORE) {
-            isGameOver = true;
-            showGameOver("Game Over!<br>AI Wins 🏆");
-        } else {
-            resetBall(1);
-        }
+        resetBall(1);
     }
     if (ballX + BALL_SIZE > WIDTH) {
         leftScore++;
-        if (leftScore >= WIN_SCORE) {
-            isGameOver = true;
-            showGameOver("Game Over!<br>You Win 🎉");
-        } else {
-            resetBall(-1);
-        }
+        resetBall(-1);
     }
 
     // Simple AI for right paddle
@@ -168,19 +130,18 @@ function update() {
     if (rightPaddleY > HEIGHT - PADDLE_HEIGHT) rightPaddleY = HEIGHT - PADDLE_HEIGHT;
 }
 
-function showGameOver(msg) {
-    gameOverMsg.innerHTML = msg;
-    gameOverDiv.hidden = false;
+function resetBall(direction = 1) {
+    ballX = WIDTH / 2 - BALL_SIZE / 2;
+    ballY = HEIGHT / 2 - BALL_SIZE / 2;
+    ballSpeedX = BALL_SPEED * direction;
+    ballSpeedY = BALL_SPEED * (Math.random() * 2 - 1);
 }
 
 function gameLoop() {
     update();
     draw();
-    if (!isGameOver) {
-        requestAnimationFrame(gameLoop);
-    }
+    requestAnimationFrame(gameLoop);
 }
 
 // --- INIT ---
-resetGame();
 gameLoop();
